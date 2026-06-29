@@ -1,0 +1,32 @@
+{
+  "mode": "replace",
+  "evidence_level": "candidate",
+  "circuit_harness": "USER_SUPPLIED_CIRCUIT_HARNESS",
+  "control_experiment": {
+    "passed": true,
+    "notes": "Replace mode requires a passed anchor/control embedding."
+  },
+  "artifacts": [
+    {
+      "name": "rf_route_block_example",
+      "path": "USER_SUPPLIED_TOUCHSTONE_PATH",
+      "ports": 2,
+      "requires_dc": false,
+      "coverage": {
+        "has_dc": false,
+        "band_limited": false,
+        "stop": "USER_SUPPLIED"
+      }
+    }
+  ],
+  "port_map": [
+    {
+      "artifact_port": "p1",
+      "circuit_node": "RF_IN"
+    },
+    {
+      "artifact_port": "p2",
+      "circuit_node": "RF_OUT"
+    }
+  ]
+}

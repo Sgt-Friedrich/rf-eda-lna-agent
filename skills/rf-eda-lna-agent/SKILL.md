@@ -59,6 +59,7 @@ The skill must apply these lessons without waiting for the user to restate them:
 - EDA schematic generation or GUI schematic acceptance: read `references/schematic-generation-playbook.md`.
 - Simulation, optimizer, EM, layout, or signoff harness design: read `references/harness-contracts.md`.
 - Large script/harness migration into generic templates: read `references/deep-harness-playbook.md`.
+- Selecting or copying a standard script template: read `references/template-script-library.md`.
 - EDA runtime, GUI/database automation, generated schematics, or tool callback problems: read `references/eda-adapter-patterns.md`.
 - RF design reasoning, system budgets, literature-to-primitive adaptation, or mechanism-vs-candidate separation: read `references/rf-design-lessons.md`.
 - Optimizer behavior or retuning discipline: read `references/optimizer-policy.md`.
@@ -88,6 +89,16 @@ The skill must apply these lessons without waiting for the user to restate them:
 - `scripts/failure_catalog_append.py`: append structured failure/blocker lessons to Markdown and JSONL.
 - `scripts/harness_scaffold.py`: create a parameterized simulation/optimizer/EM/layout/signoff harness skeleton.
 - `scripts/evidence_gate.py`: reject promotion when evidence level, hard checks, or red flags do not meet the active gate.
+- `scripts/materialize_template.py`: copy a bundled schematic/layout/EM/cosim/optimizer template into a project.
+
+## Bundled Templates
+
+- `templates/harnesses/schematic_generation_template.py`
+- `templates/harnesses/layout_growth_template.py`
+- `templates/harnesses/em_extraction_template.py`
+- `templates/harnesses/cosim_embedding_template.py`
+- `templates/harnesses/optimizer_invocation_template.py`
+- `templates/examples/*.example.json`
 
 ## Safety Rules
 

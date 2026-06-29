@@ -1,0 +1,31 @@
+{
+  "cell": {
+    "library": "USER_SUPPLIED_LIBRARY",
+    "name": "USER_SUPPLIED_CELL",
+    "view": "schematic"
+  },
+  "instances": [
+    {
+      "name": "X1",
+      "symbol": "USER_SUPPLIED_DEVICE_SYMBOL",
+      "parameters": {
+        "example_parameter": "USER_SUPPLIED_VALUE"
+      }
+    },
+    {
+      "name": "P_IN",
+      "symbol": "USER_SUPPLIED_PORT_SYMBOL",
+      "parameters": {
+        "port_number": 1
+      }
+    }
+  ],
+  "connections": [
+    {
+      "from": "P_IN:pin",
+      "to": "X1:input",
+      "method": "explicit_wire",
+      "net": "RF_IN"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "layout_cell": {
+    "library": "USER_SUPPLIED_LIBRARY",
+    "name": "USER_SUPPLIED_LAYOUT_CELL"
+  },
+  "block_name": "input_block_example",
+  "instances": [
+    {
+      "name": "X1",
+      "role": "active_or_passive_device",
+      "placement": {
+        "x": "USER_SUPPLIED",
+        "y": "USER_SUPPLIED",
+        "rotation": "USER_SUPPLIED"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "name": "rf_input_route",
+      "from": "P_IN",
+      "to": "X1:input",
+      "rf": true,
+      "style": "manual_or_scripted_rf_route",
+      "corner_style": "smooth_or_tapered",
+      "width": "USER_SUPPLIED",
+      "layers": [
+        "USER_SUPPLIED_LAYER"
+      ]
+    }
+  ],
+  "review": {
+    "screenshots": [
+      "overview",
+      "rf_route_detail"
+    ],
+    "geometry_net_coverage_required": true
+  }
+}

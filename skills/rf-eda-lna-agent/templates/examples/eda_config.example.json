@@ -1,0 +1,7 @@
+{
+  "eda_runtime": "USER_SUPPLIED_EDA_RUNTIME",
+  "python": "USER_SUPPLIED_EDA_PYTHON",
+  "gui_launcher": "USER_SUPPLIED_GUI_LAUNCHER",
+  "ground_node": "USER_SUPPLIED_GROUND_NODE",
+  "notes": "Keep real tool paths in project-local config, not in public templates."
+}

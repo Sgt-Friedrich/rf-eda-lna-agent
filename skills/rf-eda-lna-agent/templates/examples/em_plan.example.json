@@ -1,0 +1,33 @@
+{
+  "layout_cell": {
+    "library": "USER_SUPPLIED_LIBRARY",
+    "name": "USER_SUPPLIED_LAYOUT_CELL"
+  },
+  "em_block": "rf_route_block_example",
+  "substrate": "USER_SUPPLIED_SUBSTRATE_OR_STACKUP",
+  "frequency": {
+    "start": "USER_SUPPLIED",
+    "stop": "USER_SUPPLIED",
+    "step": "USER_SUPPLIED"
+  },
+  "dc_handling": {
+    "documented": true,
+    "notes": "Set true only when DC behavior is intentionally handled or irrelevant."
+  },
+  "ports": [
+    {
+      "name": "p1",
+      "node": "RF_IN",
+      "reference_plane": "USER_SUPPLIED_REFERENCE_PLANE",
+      "carries_dc": false,
+      "noise_critical": false
+    },
+    {
+      "name": "p2",
+      "node": "RF_OUT",
+      "reference_plane": "USER_SUPPLIED_REFERENCE_PLANE",
+      "carries_dc": false,
+      "noise_critical": false
+    }
+  ]
+}

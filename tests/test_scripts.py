@@ -10,6 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "skills" / "rf-eda-lna-agent" / "scripts"
+TEMPLATES = ROOT / "skills" / "rf-eda-lna-agent" / "templates"
 
 
 def run_script(name: str, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -249,6 +250,94 @@ class ScriptTests(unittest.TestCase):
             )
             self.assertNotEqual(blocked.returncode, 0)
             self.assertIn('"verdict": "provisional"', blocked.stdout)
+
+    def test_materialize_and_template_dry_runs(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            materialized = root / "scripts"
+            proc = run_script(
+                "materialize_template.py",
+                "--template",
+                "schematic",
+                "--name",
+                "c001_schematic_builder",
+                "--out-dir",
+                materialized,
+            )
+            self.assertIn('"verdict": "ok"', proc.stdout)
+            self.assertTrue((materialized / "c001_schematic_builder.py").exists())
+            self.assertTrue((materialized / "c001_schematic_builder.template_manifest.json").exists())
+
+            examples = TEMPLATES / "examples"
+            harnesses = TEMPLATES / "harnesses"
+            cases = [
+                (
+                    "schematic_generation_template.py",
+                    [
+                        "--candidate",
+                        "C001",
+                        "--design-spec",
+                        examples / "schematic_design_spec.example.json",
+                        "--eda-config",
+                        examples / "eda_config.example.json",
+                    ],
+                ),
+                (
+                    "layout_growth_template.py",
+                    [
+                        "--candidate",
+                        "C001",
+                        "--block-plan",
+                        examples / "layout_block_plan.example.json",
+                    ],
+                ),
+                (
+                    "em_extraction_template.py",
+                    [
+                        "--candidate",
+                        "C001",
+                        "--em-plan",
+                        examples / "em_plan.example.json",
+                    ],
+                ),
+                (
+                    "cosim_embedding_template.py",
+                    [
+                        "--candidate",
+                        "C001",
+                        "--embedding-plan",
+                        examples / "embedding_plan.example.json",
+                    ],
+                ),
+                (
+                    "optimizer_invocation_template.py",
+                    [
+                        "--candidate",
+                        "C001",
+                        "--optimizer-plan",
+                        examples / "optimizer_plan.example.json",
+                    ],
+                ),
+            ]
+            for index, (script, args) in enumerate(cases):
+                out = root / f"template_case_{index}"
+                proc2 = subprocess.run(
+                    [
+                        sys.executable,
+                        str(harnesses / script),
+                        *map(str, args),
+                        "--out",
+                        str(out),
+                        "--dry-run",
+                    ],
+                    cwd=ROOT,
+                    text=True,
+                    capture_output=True,
+                    check=False,
+                )
+                self.assertEqual(proc2.returncode, 0, f"{script}\nSTDOUT:\n{proc2.stdout}\nSTDERR:\n{proc2.stderr}")
+                self.assertIn('"verdict": "dry_run_pass"', proc2.stdout)
+                self.assertTrue((out / "evidence.json").exists())
 
 
 if __name__ == "__main__":

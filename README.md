@@ -68,6 +68,7 @@ skills/rf-eda-lna-agent/
     do-not-repeat-patterns.md
     history-mining-and-remote-audit.md
     deep-harness-playbook.md
+    template-script-library.md
     eda-adapter-patterns.md
     rf-design-lessons.md
     blocker-and-failure-playbook.md
@@ -87,6 +88,16 @@ skills/rf-eda-lna-agent/
     failure_catalog_append.py
     harness_scaffold.py
     evidence_gate.py
+    materialize_template.py
+  templates/
+    harnesses/
+      schematic_generation_template.py
+      layout_growth_template.py
+      em_extraction_template.py
+      cosim_embedding_template.py
+      optimizer_invocation_template.py
+    examples/
+      *.example.json
 examples/synthetic_project/
   config/
   docs/
@@ -112,6 +123,7 @@ examples/synthetic_project/
 | `failure_catalog_append.py` | Append structured failure or blocker lessons to Markdown and JSONL. |
 | `harness_scaffold.py` | Create a parameterized harness skeleton for simulation, optimizer, EM/cosim, layout growth, signoff, or diagnostics. |
 | `evidence_gate.py` | Check whether a candidate has enough evidence and hard-gate status to be promoted. |
+| `materialize_template.py` | Copy a bundled schematic/layout/EM/cosim/optimizer template into a project. |
 
 ## Encoded Workflow Lessons
 
@@ -194,6 +206,15 @@ python skills/rf-eda-lna-agent/scripts/harness_scaffold.py \
   --family optimizer \
   --name c001_optimizer \
   --out /tmp/rf-eda-harnesses
+```
+
+Copy a concrete template script into a project:
+
+```bash
+python skills/rf-eda-lna-agent/scripts/materialize_template.py \
+  --template schematic \
+  --name c001_schematic_builder \
+  --out-dir /path/to/project/scripts
 ```
 
 ## Validation
@@ -293,6 +314,7 @@ skills/rf-eda-lna-agent/
     do-not-repeat-patterns.md
     history-mining-and-remote-audit.md
     deep-harness-playbook.md
+    template-script-library.md
     eda-adapter-patterns.md
     rf-design-lessons.md
     blocker-and-failure-playbook.md
@@ -312,6 +334,16 @@ skills/rf-eda-lna-agent/
     failure_catalog_append.py
     harness_scaffold.py
     evidence_gate.py
+    materialize_template.py
+  templates/
+    harnesses/
+      schematic_generation_template.py
+      layout_growth_template.py
+      em_extraction_template.py
+      cosim_embedding_template.py
+      optimizer_invocation_template.py
+    examples/
+      *.example.json
 examples/synthetic_project/
   config/
   docs/
@@ -337,6 +369,7 @@ examples/synthetic_project/
 | `failure_catalog_append.py` | 结构化追加 failure/blocker 经验到 Markdown 和 JSONL。 |
 | `harness_scaffold.py` | 生成 simulation、optimizer、EM/cosim、layout growth、signoff 或 diagnostic harness 骨架。 |
 | `evidence_gate.py` | 检查候选证据等级、hard-gate 状态和红旗是否允许 promotion。 |
+| `materialize_template.py` | 把内置的原理图、版图、EM、联仿或 optimizer 模板复制到项目中。 |
 
 ## 已固化的流程经验
 

@@ -1,0 +1,33 @@
+{
+  "runner": {
+    "type": "USER_SUPPLIED_OPTIMIZER",
+    "command": "USER_SUPPLIED_COMMAND_OR_ADAPTER"
+  },
+  "variables": [
+    {
+      "name": "line_length_example",
+      "min": 1.0,
+      "max": 2.0,
+      "quantization": 0.1,
+      "physical_meaning": "example manufacturable line length"
+    }
+  ],
+  "hard_targets": [
+    {
+      "metric": "USER_SUPPLIED_METRIC",
+      "operator": ">=",
+      "value": "USER_SUPPLIED_VALUE"
+    }
+  ],
+  "objectives": [
+    {
+      "metric": "USER_SUPPLIED_OBJECTIVE",
+      "direction": "maximize_or_minimize",
+      "weight": "USER_SUPPLIED_WEIGHT"
+    }
+  ],
+  "verification": {
+    "independent_rerun": true,
+    "fine_grid_or_honest_range": "USER_SUPPLIED"
+  }
+}
