@@ -113,6 +113,143 @@ class ScriptTests(unittest.TestCase):
             self.assertNotEqual(signoff.returncode, 0)
             self.assertIn("blocked_external", signoff.stdout)
 
+    def test_script_family_inventory(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / "legacy"
+            (root / "scripts").mkdir(parents=True)
+            (root / "docs").mkdir()
+            (root / "scripts" / "candidate_optimizer_sweep.py").write_text("run optimizer sweep", encoding="utf-8")
+            (root / "scripts" / "layout_gui_screenshot.py").write_text("capture layout screenshot", encoding="utf-8")
+            (root / "docs" / "em_cosim_notes.md").write_text("Momentum SnP embedding notes", encoding="utf-8")
+            out = Path(td) / "families"
+            proc = run_script("script_family_inventory.py", "--root", root, "--out", out)
+            self.assertIn('"verdict": "ok"', proc.stdout)
+            data = json.loads((out / "script_family_inventory.json").read_text(encoding="utf-8"))
+            self.assertGreaterEqual(data["counts"].get("optimizer_or_sweep", 0), 1)
+            self.assertGreaterEqual(data["counts"].get("layout_gui", 0), 1)
+            self.assertGreaterEqual(data["counts"].get("em_cosim", 0), 1)
+
+    def test_history_remote_audit_snapshot(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            local = Path(td) / "local"
+            snap = Path(td) / "snapshot"
+            (local / "docs").mkdir(parents=True)
+            (snap / "docs").mkdir(parents=True)
+            (local / "scripts").mkdir()
+            (snap / "scripts").mkdir()
+            (local / "docs" / "same.md").write_text("same", encoding="utf-8")
+            (snap / "docs" / "same.md").write_text("same", encoding="utf-8")
+            (local / "docs" / "changed.md").write_text("new", encoding="utf-8")
+            (snap / "docs" / "changed.md").write_text("old", encoding="utf-8")
+            (snap / "scripts" / "remote_only.py").write_text("print('remote')", encoding="utf-8")
+            out = Path(td) / "audit"
+            run_script("history_remote_audit.py", "--root", local, "--snapshot", f"old={snap}", "--out", out)
+            data = json.loads((out / "history_remote_audit.json").read_text(encoding="utf-8"))
+            diff = data["snapshots"][0]
+            self.assertIn("docs/changed.md", diff["changed"])
+            self.assertIn("scripts/remote_only.py", diff["snapshot_only"])
+
+    def test_failure_catalog_append(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            catalog = root / "docs" / "failure_catalog.md"
+            registry = root / "manifests" / "failure_catalog.jsonl"
+            proc = run_script(
+                "failure_catalog_append.py",
+                "--catalog",
+                catalog,
+                "--registry",
+                registry,
+                "--category",
+                "optimizer",
+                "--symptom",
+                "hard gate omitted",
+                "--root-cause",
+                "objective was incomplete",
+                "--response",
+                "reject and rerun",
+                "--status",
+                "retired",
+            )
+            self.assertIn('"verdict": "ok"', proc.stdout)
+            self.assertIn("hard gate omitted", catalog.read_text(encoding="utf-8"))
+            lines = registry.read_text(encoding="utf-8").splitlines()
+            self.assertEqual(len(lines), 1)
+            self.assertEqual(json.loads(lines[0])["status"], "retired")
+
+    def test_harness_scaffold_and_evidence_gate(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            out = root / "harnesses"
+            proc = run_script("harness_scaffold.py", "--family", "optimizer", "--name", "c001_optimizer", "--out", out)
+            self.assertIn('"verdict": "ok"', proc.stdout)
+            scaffold = out / "c001_optimizer.py"
+            self.assertTrue(scaffold.exists())
+            dry = subprocess.run(
+                [
+                    sys.executable,
+                    str(scaffold),
+                    "--project",
+                    str(root),
+                    "--candidate",
+                    "C001",
+                    "--out",
+                    str(root / "evidence"),
+                    "--dry-run",
+                ],
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(dry.returncode, 0, dry.stderr)
+            self.assertTrue((root / "evidence" / "evidence.json").exists())
+
+            candidate = root / "candidate.json"
+            candidate.write_text(
+                json.dumps(
+                    {
+                        "id": "C001",
+                        "evidence_level": "E5",
+                        "hard_checks": {"gain": True, "match": True},
+                        "red_flags": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            gate = run_script(
+                "evidence_gate.py",
+                "--candidate-json",
+                candidate,
+                "--required-evidence",
+                "E4",
+                "--require-hard-pass",
+                "--forbid-red-flags",
+            )
+            self.assertIn('"verdict": "promote"', gate.stdout)
+            candidate.write_text(
+                json.dumps(
+                    {
+                        "id": "C001",
+                        "evidence_level": "E2",
+                        "hard_checks": {"gain": True, "match": False},
+                        "red_flags": ["port_reference_uncertain"],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            blocked = run_script(
+                "evidence_gate.py",
+                "--candidate-json",
+                candidate,
+                "--required-evidence",
+                "E4",
+                "--require-hard-pass",
+                "--forbid-red-flags",
+                check=False,
+            )
+            self.assertNotEqual(blocked.returncode, 0)
+            self.assertIn('"verdict": "provisional"', blocked.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

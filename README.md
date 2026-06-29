@@ -20,6 +20,8 @@ RF EDA LNA Agent turns a long RF design effort into a structured, evidence-drive
 
 It is intentionally target-agnostic. The agent does not assume a frequency band, gain target, noise target, matching target, stability target, linearity target, process technology, tool path, or PDK. Those values must come from the user or project configuration.
 
+The project is built from long-form EDA workflow lessons: exploration-tree governance, bounded optimizer practice, EM/cosim embedding controls, GUI-reviewed layout growth, artifact budgeting, and truthful blocker reporting. The public package keeps those lessons generic and does not publish private circuit data.
+
 ## Core Principles
 
 - **User-supplied targets**: no built-in RF specifications.
@@ -53,12 +55,22 @@ skills/rf-eda-lna-agent/
     configuration-schema.md
     agent-architecture.md
     exploration-tree-management.md
+    netlist-exploration-playbook.md
+    schematic-generation-playbook.md
     harness-contracts.md
     optimizer-policy.md
+    em-cosim-optimizer-playbook.md
     em-cosim-policy.md
+    layout-exploration-playbook.md
     layout-growth-policy.md
     signoff-readiness-policy.md
     failure-catalog.md
+    do-not-repeat-patterns.md
+    history-mining-and-remote-audit.md
+    deep-harness-playbook.md
+    eda-adapter-patterns.md
+    rf-design-lessons.md
+    blocker-and-failure-playbook.md
     export-policy.md
   scripts/
     init_project.py
@@ -70,6 +82,11 @@ skills/rf-eda-lna-agent/
     artifact_guard.py
     signoff_readiness.py
     process_guard.py
+    script_family_inventory.py
+    history_remote_audit.py
+    failure_catalog_append.py
+    harness_scaffold.py
+    evidence_gate.py
 examples/synthetic_project/
   config/
   docs/
@@ -90,6 +107,24 @@ examples/synthetic_project/
 | `artifact_guard.py` | Report repository size and largest artifacts without deleting anything. |
 | `signoff_readiness.py` | Check signoff collateral presence without claiming signoff-clean. |
 | `process_guard.py` | List possible EDA-related processes without killing them by default. |
+| `script_family_inventory.py` | Classify a large legacy script/doc tree into generic harness families. |
+| `history_remote_audit.py` | Compare local and snapshot/ref histories by path and content hash. |
+| `failure_catalog_append.py` | Append structured failure or blocker lessons to Markdown and JSONL. |
+| `harness_scaffold.py` | Create a parameterized harness skeleton for simulation, optimizer, EM/cosim, layout growth, signoff, or diagnostics. |
+| `evidence_gate.py` | Check whether a candidate has enough evidence and hard-gate status to be promoted. |
+
+## Encoded Workflow Lessons
+
+The skill encodes these recurring RF/EDA project lessons:
+
+- local worktrees are not always the full history; remote branches and archives must be audited before writing a project narrative;
+- optimizer rows are evidence, not authority, until hard gates are independently verified;
+- analytic or ideal schematic primitives can be optimistic relative to true physical EM;
+- SnP black-box replacement is unsafe on paths that carry DC, noise reference, or high-impedance coupled behavior unless a control harness proves equivalence;
+- pin-level net equivalence is not enough for layout; conductive geometry and screenshots are separate gates;
+- passive full-chip EM is not the same as active/noise signoff;
+- missing official DRC/LVS decks are external blockers, not something the agent can silently work around;
+- heavy solver output belongs in manifests or external storage, not normal Git history.
 
 ## Example Commands
 
@@ -135,6 +170,32 @@ python skills/rf-eda-lna-agent/scripts/signoff_readiness.py \
   --lvs-deck /path/to/lvs.rules
 ```
 
+Classify a legacy project into harness families:
+
+```bash
+python skills/rf-eda-lna-agent/scripts/script_family_inventory.py \
+  --root /path/to/project \
+  --out /tmp/rf-eda-script-families
+```
+
+Compare a local project with an archived branch snapshot:
+
+```bash
+python skills/rf-eda-lna-agent/scripts/history_remote_audit.py \
+  --root /path/to/project \
+  --snapshot old-main=/path/to/snapshot \
+  --out /tmp/rf-eda-history-audit
+```
+
+Create a new harness skeleton:
+
+```bash
+python skills/rf-eda-lna-agent/scripts/harness_scaffold.py \
+  --family optimizer \
+  --name c001_optimizer \
+  --out /tmp/rf-eda-harnesses
+```
+
 ## Validation
 
 Run:
@@ -168,6 +229,8 @@ MIT
 RF EDA LNA Agent 是一个可配置的 Codex skill/plugin，用于把 RF/LNA 电路设计流程组织成可审计、可维护、可复现的工程工作流。它帮助 agent 采集用户指标、生成目标文件、维护探索树、运行通用 harness、审查证据，并输出签核准备状态。
 
 这个项目是流程基础设施，不包含 PDK、foundry rule deck、私有电路数据库、私有版图、私有仿真数据，也不承诺自动流片。
+
+这个项目吸收的是长周期 EDA 自动化项目中的通用经验：探索树治理、受控 optimizer、EM/cosim 嵌回控制、GUI 审查的版图逐块生长、artifact 预算、以及真实 blocker 报告。公开包只保留通用方法，不发布私有电路数据。
 
 ## 它解决什么问题
 
@@ -217,12 +280,22 @@ skills/rf-eda-lna-agent/
     configuration-schema.md
     agent-architecture.md
     exploration-tree-management.md
+    netlist-exploration-playbook.md
+    schematic-generation-playbook.md
     harness-contracts.md
     optimizer-policy.md
+    em-cosim-optimizer-playbook.md
     em-cosim-policy.md
+    layout-exploration-playbook.md
     layout-growth-policy.md
     signoff-readiness-policy.md
     failure-catalog.md
+    do-not-repeat-patterns.md
+    history-mining-and-remote-audit.md
+    deep-harness-playbook.md
+    eda-adapter-patterns.md
+    rf-design-lessons.md
+    blocker-and-failure-playbook.md
     export-policy.md
   scripts/
     init_project.py
@@ -234,6 +307,11 @@ skills/rf-eda-lna-agent/
     artifact_guard.py
     signoff_readiness.py
     process_guard.py
+    script_family_inventory.py
+    history_remote_audit.py
+    failure_catalog_append.py
+    harness_scaffold.py
+    evidence_gate.py
 examples/synthetic_project/
   config/
   docs/
@@ -254,6 +332,22 @@ examples/synthetic_project/
 | `artifact_guard.py` | 报告仓库大小和最大文件，不默认删除。 |
 | `signoff_readiness.py` | 检查签核 collateral 是否存在，但不声称 clean。 |
 | `process_guard.py` | 列出可能的 EDA 进程，默认不杀进程。 |
+| `script_family_inventory.py` | 把大型历史脚本/文档树归类为通用 harness 家族。 |
+| `history_remote_audit.py` | 对比本地项目与历史快照/远端快照的路径和内容哈希。 |
+| `failure_catalog_append.py` | 结构化追加 failure/blocker 经验到 Markdown 和 JSONL。 |
+| `harness_scaffold.py` | 生成 simulation、optimizer、EM/cosim、layout growth、signoff 或 diagnostic harness 骨架。 |
+| `evidence_gate.py` | 检查候选证据等级、hard-gate 状态和红旗是否允许 promotion。 |
+
+## 已固化的流程经验
+
+- 本地 worktree 不一定包含完整历史，写总结前要审计远端分支和历史快照。
+- optimizer 输出只是证据，必须经过独立 hard-gate 验证才能 promotion。
+- 解析/理想 schematic primitive 往往比真实物理 EM 乐观。
+- 带 DC、噪声参考、高阻耦合语义的路径不能盲目用 SnP 黑盒替换。
+- pin 级 net 等价不等于真实金属连通，版图必须检查 conductive geometry 和截图。
+- 被动全片 EM 不等于有源/噪声签核。
+- 缺官方 DRC/LVS deck 是 external blocker，不能伪造 clean。
+- 重型 solver 输出默认不进 Git，只保留 manifest 和轻量证据。
 
 ## 使用示例
 

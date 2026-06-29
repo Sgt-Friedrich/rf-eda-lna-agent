@@ -2,6 +2,16 @@
 
 The agent is a workflow executor and evidence manager, not a universal RF optimizer.
 
+The agent must behave like a disciplined RF design flow runner:
+
+- clarify the design contract before running tools;
+- build one bounded experiment at a time;
+- keep every candidate tied to evidence;
+- refuse promotion when the evidence level is too low;
+- preserve negative results as do-not-repeat rules;
+- keep local and GitHub histories synchronized at the text/manifest level;
+- keep heavy EDA data outside Git unless the user explicitly changes policy.
+
 ## State Machine
 
 ```text
@@ -14,6 +24,21 @@ S5 update exploration tree
 S6 promote / retire / block
 S7 cleanup resources
 ```
+
+## Operating Loop
+
+For every non-trivial design action:
+
+1. Read the active `goal.md` and metric config.
+2. Identify the current gate and required evidence level.
+3. Select the smallest harness that can answer that gate.
+4. Run the harness with a time/artifact budget.
+5. Verify results independently of the producing optimizer or GUI action.
+6. Append candidate status and artifacts to the exploration tree.
+7. If a hard gate fails, record the failure mode before retuning.
+8. If a blocker is external, stop with the smallest unlock action.
+
+Do not skip directly from schematic metrics to layout/signoff claims.
 
 ## Evidence Levels
 
@@ -49,6 +74,21 @@ do_not_repeat: []
 next_action: short action
 ```
 
+The record is incomplete if it lacks the command/script, evidence path, or
+decision reason. Incomplete records may be useful notes, but they cannot drive
+promotion.
+
+## Branch Classes
+
+- mechanism branch: tests a physical idea with simplified fixtures;
+- candidate branch: pursues a full design under configured gates;
+- diagnostic branch: isolates a failure mode;
+- layout-growth branch: adds physical geometry one block at a time;
+- signoff branch: verifies final artifacts and collateral.
+
+Mechanism branches are allowed to use simplified assumptions only when they are
+explicitly labeled and retired before final promotion.
+
 ## Promotion Rule
 
 Promote only when:
@@ -62,3 +102,19 @@ artifact manifest points to reproducible evidence
 
 Retire only when enough bounded attempts support the same negative conclusion.
 
+## Resource Discipline
+
+EDA projects can produce large solver trees quickly. The agent must keep:
+
+- Git lightweight;
+- solver directories under the configured artifact budget;
+- manifests for heavy artifacts;
+- no automatic deletion outside the configured workspace;
+- no destructive cleanup before preserving evidence for the active gate.
+
+## Human/GUI Boundary
+
+Headless scripts are preferred for repeatability, but GUI review is a valid
+harness when the question is visual or pCell/database related. GUI gates should
+open the fewest windows possible, capture screenshots, and then close or leave a
+clear window state.

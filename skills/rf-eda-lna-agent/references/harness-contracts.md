@@ -13,6 +13,13 @@ Requirements:
 - no automatic overwrite from remote
 - heavy remote snapshots removed after inventory
 
+Evidence products:
+
+- inventory JSON and Markdown summary;
+- candidate ID coverage;
+- script-family histogram;
+- largest-artifact summary.
+
 ## Simulation Harness
 
 Runs user-configured analyses reproducibly.
@@ -25,6 +32,8 @@ Requirements:
 - Markdown summary
 - independent verification before promotion
 
+A metric row without the input netlist, command, and log is not enough to debug a later regression.
+
 ## Optimizer Harness
 
 Runs bounded optimizer rounds.
@@ -36,6 +45,8 @@ Requirements:
 - wall-time and iteration budgets
 - rejection of degenerate candidates
 - final verification independent from optimizer grid
+
+Reject raw optimizer rows until they are quantized, rerun outside the optimizer grid, and checked against every configured hard metric.
 
 ## Touchstone Audit Harness
 
@@ -50,6 +61,8 @@ Checks:
 - basic passive-network sanity
 - verdict: embed_safe, audit_only, band_limited, dc_missing, port_uncertain, or reject
 
+The Touchstone audit decides embedding eligibility; it does not prove the circuit will still meet system gates.
+
 ## EM/Cosim Harness
 
 Rules:
@@ -58,6 +71,8 @@ Rules:
 - Audit-mode is valid when the PDK/model primitive remains the correct electrical model.
 - Bias-carrying paths and noise-reference paths need special care.
 - Passive-only EM is not active/noise signoff.
+
+Every cut boundary should document port name, schematic node, physical reference plane, DC behavior, noise sensitivity, and what model remains outside the EM block.
 
 ## Layout Harness
 
@@ -68,6 +83,8 @@ Rules:
 - verify conductive connectivity, not only labels
 - avoid automatic routing that destroys RF intent
 
+Growth products include pre/post screenshots, geometry net-coverage report, focused cosim when meaningful, and rollback notes for rejected blocks.
+
 ## Signoff Harness
 
 Rules:
@@ -76,3 +93,4 @@ Rules:
 - missing DRC/LVS collateral is an external blocker
 - signoff-ready is not signoff-clean
 
+If decks are absent, the harness may produce a signoff-ready package, but the state must remain blocked or ready-for-official-deck, never clean.

@@ -37,3 +37,25 @@ After optimization:
 
 Retuning is valid only when it stays within the branch's allowed variables. If the only path requires forbidden topology or model changes, stop and report a blocked decision.
 
+## EM-In-The-Loop Discipline
+
+Live EM inside every optimizer iteration is often too expensive. The preferred pattern is:
+
+1. generate a small set of physically meaningful EM variants;
+2. freeze each validated EM artifact into the circuit harness;
+3. optimize nearby schematic or layout variables against the frozen artifact;
+4. quantize and resynchronize geometry;
+5. rerun the EM/circuit verification at the active evidence level.
+
+Do not return to an ideal or analytic primitive to claim final margin once a true EM artifact has exposed different phase, loss, or coupling behavior.
+
+## Degenerate Result Rejection
+
+Reject or demote a result when:
+
+- a hard metric was not active in the objective or configured gate;
+- the result improves one target by worsening an unconstrained hard gate;
+- the pass depends on a narrow ripple, spike, or sampled-grid artifact;
+- layout variables were not synchronized back to real geometry;
+- the optimizer used a lower-fidelity model after higher-fidelity physical evidence showed a mismatch.
+
