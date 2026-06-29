@@ -1,0 +1,20 @@
+budget:
+  max_repository_size: TBD
+  max_repository_size_unit: TBD
+  max_single_run_temp_size: TBD
+  max_single_run_temp_size_unit: TBD
+
+retain:
+  status_docs: true
+  metric_json: true
+  final_netlists: true
+  selected_screenshots: true
+  promoted_touchstone: true
+  raw_solver_workdirs: false
+  remote_snapshots_after_inventory: false
+
+cleanup:
+  require_manifest_before_delete: true
+  delete_only_inside_workspace: true
+  preserve_promoted_artifacts: true
+

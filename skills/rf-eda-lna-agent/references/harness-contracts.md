@@ -1,0 +1,78 @@
+# Harness Contracts
+
+Harnesses are the agent's main execution units.
+
+## Inventory Harness
+
+Indexes docs, scripts, reports, results, and candidate IDs.
+
+Requirements:
+
+- configurable candidate regex
+- local and remote repository support
+- no automatic overwrite from remote
+- heavy remote snapshots removed after inventory
+
+## Simulation Harness
+
+Runs user-configured analyses reproducibly.
+
+Requirements:
+
+- explicit seed
+- generated or patched netlist stored as evidence
+- structured metric JSON
+- Markdown summary
+- independent verification before promotion
+
+## Optimizer Harness
+
+Runs bounded optimizer rounds.
+
+Requirements:
+
+- variables with bounds, quantization, and physical meaning
+- every hard metric represented in constraints or score
+- wall-time and iteration budgets
+- rejection of degenerate candidates
+- final verification independent from optimizer grid
+
+## Touchstone Audit Harness
+
+Checks whether an S-parameter file is safe to embed.
+
+Checks:
+
+- expected port count
+- required frequency coverage
+- DC handling when needed
+- port order and reference plane notes
+- basic passive-network sanity
+- verdict: embed_safe, audit_only, band_limited, dc_missing, port_uncertain, or reject
+
+## EM/Cosim Harness
+
+Rules:
+
+- Replace-mode requires a control test.
+- Audit-mode is valid when the PDK/model primitive remains the correct electrical model.
+- Bias-carrying paths and noise-reference paths need special care.
+- Passive-only EM is not active/noise signoff.
+
+## Layout Harness
+
+Rules:
+
+- grow one block or connection family at a time
+- capture screenshots or equivalent visual proof
+- verify conductive connectivity, not only labels
+- avoid automatic routing that destroys RF intent
+
+## Signoff Harness
+
+Rules:
+
+- signoff-clean requires official reports
+- missing DRC/LVS collateral is an external blocker
+- signoff-ready is not signoff-clean
+

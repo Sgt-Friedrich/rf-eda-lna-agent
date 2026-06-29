@@ -1,0 +1,11 @@
+{
+  "name": "rf-eda-lna-agent",
+  "version": "0.1.0",
+  "description": "Configurable RF/LNA EDA workflow skill for exploration trees, simulation evidence, EM audits, layout growth, and signoff readiness.",
+  "skills": [
+    {
+      "path": "skills/rf-eda-lna-agent"
+    }
+  ]
+}
+

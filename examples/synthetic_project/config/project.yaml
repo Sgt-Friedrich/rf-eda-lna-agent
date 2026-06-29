@@ -1,0 +1,28 @@
+project:
+  name: synthetic_rf_project
+  privacy: public
+  workspace_root: ${RF_EDA_WORKSPACE}
+  candidate_prefix: C
+  candidate_regex: "(?P<id>C\\d{3})"
+
+eda:
+  tool_family: user_supplied
+  tool_version: TBD
+  launch_command: ${RF_EDA_LAUNCH_COMMAND}
+  sim_command: ${RF_EDA_SIM_COMMAND}
+  python_command: ${RF_EDA_PYTHON}
+
+pdk:
+  profile_name: user_supplied_or_TBD
+  signoff_decks_required: TBD
+  drc_deck: TBD
+  lvs_deck: TBD
+  layer_map: TBD
+  device_map: TBD
+
+workflow:
+  allow_gui: true
+  allow_remote_git: true
+  github_repository: TBD
+  max_parallel_jobs: TBD
+

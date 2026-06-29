@@ -1,0 +1,20 @@
+analyses:
+  - name: user_configured_analysis
+    type: custom
+    range:
+      start: TBD
+      stop: TBD
+      unit: TBD
+
+hard_targets:
+  - metric: user_configured_metric
+    analysis: user_configured_analysis
+    operator: TBD
+    value: TBD
+    unit: TBD
+    aggregation: worst
+    evidence_required: E3
+
+stretch_targets: []
+report_only: []
+
