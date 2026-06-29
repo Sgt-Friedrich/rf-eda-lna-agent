@@ -36,12 +36,24 @@ skills/rf-eda-lna-agent/
     user-intake-and-bootstrap.md
     agent-architecture.md
     harness-contracts.md
+    configuration-schema.md
+    exploration-tree-management.md
+    optimizer-policy.md
+    em-cosim-policy.md
+    layout-growth-policy.md
+    signoff-readiness-policy.md
     failure-catalog.md
     export-policy.md
   scripts/
+    init_project.py
     inventory_project.py
+    metrics_gate.py
     touchstone_audit.py
+    exploration_tree_append.py
     status_append.py
+    artifact_guard.py
+    signoff_readiness.py
+    process_guard.py
 examples/synthetic_project/
   config/
   docs/
@@ -57,7 +69,32 @@ examples/synthetic_project/
 4. Initialize or connect a GitHub repository if requested.
 5. Run the smallest valid harness for the first baseline.
 
+## Example Commands
+
+Create a new project scaffold with placeholder fields:
+
+```bash
+python skills/rf-eda-lna-agent/scripts/init_project.py \
+  --root /path/to/project \
+  --project-name my-rf-project \
+  --allow-tbd
+```
+
+Index a project:
+
+```bash
+python skills/rf-eda-lna-agent/scripts/inventory_project.py \
+  --root examples/synthetic_project \
+  --out /tmp/rf-eda-inventory \
+  --candidate-regex '(?P<id>C\d{3})'
+```
+
+Audit a Touchstone file:
+
+```bash
+python skills/rf-eda-lna-agent/scripts/touchstone_audit.py example.sNp --expect-ports N
+```
+
 ## License
 
 MIT
-

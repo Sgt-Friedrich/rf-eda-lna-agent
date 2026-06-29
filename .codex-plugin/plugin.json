@@ -2,10 +2,36 @@
   "name": "rf-eda-lna-agent",
   "version": "0.1.0",
   "description": "Configurable RF/LNA EDA workflow skill for exploration trees, simulation evidence, EM audits, layout growth, and signoff readiness.",
-  "skills": [
-    {
-      "path": "skills/rf-eda-lna-agent"
-    }
-  ]
+  "author": {
+    "name": "RF EDA LNA Agent Maintainers",
+    "url": "https://github.com/Sgt-Friedrich/rf-eda-lna-agent"
+  },
+  "homepage": "https://github.com/Sgt-Friedrich/rf-eda-lna-agent",
+  "repository": "https://github.com/Sgt-Friedrich/rf-eda-lna-agent",
+  "license": "MIT",
+  "keywords": [
+    "rf",
+    "eda",
+    "lna",
+    "codex",
+    "skill"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "RF EDA LNA Agent",
+    "shortDescription": "Manage RF/LNA EDA goals, harnesses, evidence, and signoff readiness.",
+    "longDescription": "A configurable Codex skill for RF/LNA EDA workflows. It collects user-defined metrics, creates project goals, maintains exploration trees, runs bounded harnesses, audits evidence, and reports signoff readiness without assuming a specific process or target.",
+    "developerName": "RF EDA LNA Agent Maintainers",
+    "category": "Productivity",
+    "capabilities": [
+      "Write",
+      "Automation"
+    ],
+    "websiteURL": "https://github.com/Sgt-Friedrich/rf-eda-lna-agent",
+    "defaultPrompt": [
+      "Create an RF EDA project goal from my metrics.",
+      "Audit this RF candidate's evidence and blockers.",
+      "Build a harness plan for my LNA workflow."
+    ]
+  }
 }
-
