@@ -6,6 +6,9 @@ description: "Use when Codex is asked to assist an RF/LNA EDA workflow: collect 
 # RF EDA LNA Agent
 
 Use this skill for configurable RF/LNA design automation around EDA workspaces.
+The skill combines two reusable knowledge sources: project-history workflow
+patterns and RF/microwave textbook-derived engineering checks. Both sources are
+sanitized and target-agnostic.
 
 ## Required Behavior
 
@@ -21,6 +24,8 @@ Use this skill for configurable RF/LNA design automation around EDA workspaces.
 5. Promote candidates only when their evidence level matches the configured gate.
 6. Use GitHub as the exploration-tree record when requested, but do not push heavy solver artifacts unless explicitly configured.
 7. Stop truthfully at missing EDA tools, missing official signoff decks, repeated hard-gate failure, or operations that would exceed the artifact budget.
+8. When RF theory is relevant, apply the bundled RF sanity gates before selecting or promoting a harness result.
+9. Treat the exploration tree as part of the agent architecture, not as an after-action report.
 
 ## Default Execution Protocol
 
@@ -54,6 +59,7 @@ The skill must apply these lessons without waiting for the user to restate them:
 - Config schema or project file shape: read `references/configuration-schema.md`.
 - Candidate history or GitHub exploration tree: read `references/exploration-tree-management.md`.
 - Historical project mining, remote branch comparison, or "learn from all prior runs": read `references/history-mining-and-remote-audit.md`.
+- Distilled lessons from large prior RF/EDA histories: read `references/historical-workflow-distilled-lessons.md`.
 - Long workflow planning: read `references/agent-architecture.md`.
 - Netlist mechanism exploration or simulator harness planning: read `references/netlist-exploration-playbook.md`.
 - EDA schematic generation or GUI schematic acceptance: read `references/schematic-generation-playbook.md`.
@@ -62,6 +68,12 @@ The skill must apply these lessons without waiting for the user to restate them:
 - Selecting or copying a standard script template: read `references/template-script-library.md`.
 - EDA runtime, GUI/database automation, generated schematics, or tool callback problems: read `references/eda-adapter-patterns.md`.
 - RF design reasoning, system budgets, literature-to-primitive adaptation, or mechanism-vs-candidate separation: read `references/rf-design-lessons.md`.
+- RF textbook-derived engineering knowledge: read `references/rf-textbook-distilled-knowledge.md`.
+- RF textbook source inventory or extraction boundary: read `references/rf-theory-source-map.md`.
+- Noise cascade, matching, stability, or model-fidelity sanity gates: read `references/rf-formula-and-sanity-gates.md`.
+- Passive component, via, source return, bias, decoupling, or RF layout feasibility: read `references/rf-passive-and-layout-checklists.md`.
+- Compression, intermodulation, HB, nonlinear, or large-signal verification: read `references/rf-large-signal-and-nonlinear-checklists.md`.
+- ADS/CAD workflow, native optimizer, GUI, EM/cosim, or signoff adapter design: read `references/rf-ads-cad-workflow-map.md`.
 - Optimizer behavior or retuning discipline: read `references/optimizer-policy.md`.
 - EM-in-the-loop optimizer closure: read `references/em-cosim-optimizer-playbook.md`.
 - EM extraction, Touchstone embedding, or audit-vs-replace decisions: read `references/em-cosim-policy.md`.
@@ -84,12 +96,16 @@ The skill must apply these lessons without waiting for the user to restate them:
 - `scripts/artifact_guard.py`: report artifact size and largest files without deleting.
 - `scripts/signoff_readiness.py`: check signoff collateral presence without claiming clean.
 - `scripts/process_guard.py`: list possible EDA-related processes without killing by default.
+- `scripts/public_safety_scan.py`: scan public skill artifacts for local paths, private hints, fixed metrics, credentials, and heavy EDA files.
 - `scripts/script_family_inventory.py`: classify a large legacy script/doc tree into generic harness families.
 - `scripts/history_remote_audit.py`: compare local and snapshot/ref histories by path and hash without overwriting the worktree.
 - `scripts/failure_catalog_append.py`: append structured failure/blocker lessons to Markdown and JSONL.
 - `scripts/harness_scaffold.py`: create a parameterized simulation/optimizer/EM/layout/signoff harness skeleton.
 - `scripts/evidence_gate.py`: reject promotion when evidence level, hard checks, or red flags do not meet the active gate.
 - `scripts/materialize_template.py`: copy a bundled schematic/layout/EM/cosim/optimizer template into a project.
+- `scripts/book_knowledge_inventory.py`: inventory RF/microwave textbook metadata and chapter signals without copying body text.
+- `scripts/book_chapter_cards.py`: convert sanitized book inventory into RF agent knowledge cards.
+- `scripts/book_lesson_append.py`: append sanitized textbook-derived lessons to a project knowledge base.
 
 ## Bundled Templates
 

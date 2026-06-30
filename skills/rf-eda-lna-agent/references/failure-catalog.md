@@ -11,6 +11,7 @@ Common failure modes the agent should detect and avoid.
 - Ideal schematic model gives margin that physical EM removes.
 - Physical line length or phase frozen from an analytic model after EM changes the result.
 - Final promotion from an unquantized optimizer row.
+- Textbook sanity gate absent from the optimizer plan.
 
 Response:
 
@@ -28,6 +29,7 @@ reject candidate, add missing metric to score, fine-grid verify, restart from la
 - A healthy-looking low-loss SnP causes a large circuit shift because the cut boundary is invalid.
 - Reflection magnitude above unity appears after embedding a passive block.
 - A full-cell EM attempt times out, but no partition plan is recorded.
+- EM line, via, or return-path parasitic contradicts the schematic primitive but the optimizer continues tuning the wrong variable.
 
 Response:
 
@@ -45,6 +47,7 @@ run control embedding, audit Touchstone, switch to audit-mode or hybrid mode whe
 - GUI pCell artwork differs from headless database expectations.
 - Stale layout windows keep locks or make the script edit the wrong cell.
 - A reference layout style is read but not translated into a real block-growth plan.
+- Physical passive geometry violates the role implied by the circuit model, such as an unrealizable choke, excessive resistor length, or missing local return path.
 
 Response:
 

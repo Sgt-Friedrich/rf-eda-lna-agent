@@ -2,48 +2,30 @@
 
 English | [中文](#中文)
 
-A configurable Codex skill/plugin for disciplined RF/LNA design workflows around EDA tools. It helps an agent collect user-defined design targets, create a goal file, maintain an exploration tree, run reusable harnesses, audit evidence, and report signoff readiness.
+A configurable Codex skill/plugin for evidence-driven RF/LNA EDA workflows. It helps an agent collect user-defined design targets, maintain an exploration tree, run bounded harnesses, apply RF sanity checks, audit EM/layout evidence, and report signoff readiness.
 
-This project is workflow infrastructure. It does **not** include a PDK, foundry rule deck, private circuit database, private layout, private simulation data, or a guaranteed tapeout flow.
+This repository is workflow infrastructure. It does **not** include a PDK, foundry rule deck, private circuit database, private layout, private simulation data, textbook PDFs, or a guaranteed tapeout flow.
 
-## What It Is
+## What This Agent Does
 
-RF EDA LNA Agent turns a long RF design effort into a structured, evidence-driven process:
-
-- collect the design contract from the user;
-- create `goal.md` and configuration files;
-- maintain a GitHub-friendly exploration tree;
-- run bounded simulation, optimizer, EM/cosim, layout, and signoff-readiness harnesses;
-- reject degenerate optimizer results;
-- separate provisional evidence from signoff-grade evidence;
-- keep heavy EDA artifacts out of Git by default.
-
-It is intentionally target-agnostic. The agent does not assume a frequency band, gain target, noise target, matching target, stability target, linearity target, process technology, tool path, or PDK. Those values must come from the user or project configuration.
-
-The project is built from long-form EDA workflow lessons: exploration-tree governance, bounded optimizer practice, EM/cosim embedding controls, GUI-reviewed layout growth, artifact budgeting, and truthful blocker reporting. The public package keeps those lessons generic and does not publish private circuit data.
+- Collects the design contract from the user instead of assuming RF targets.
+- Creates `goal.md`, configuration files, exploration-tree records, and artifact manifests.
+- Maintains candidate history with hypothesis, parent, variables, evidence level, metrics, decision, and do-not-repeat rules.
+- Provides reusable harness templates for schematic generation, optimization, Touchstone audit, EM/cosim, layout growth, GUI review, large-signal checks, and signoff readiness.
+- Applies distilled RF/microwave textbook knowledge as sanity gates: cascade noise budget, matching/reference-plane consistency, stability, physical passive feasibility, layout connectivity, and nonlinear verification.
+- Keeps heavy EDA artifacts out of Git by default.
 
 ## Core Principles
 
-- **User-supplied targets**: no built-in RF specifications.
-- **Evidence before promotion**: a candidate must meet the configured evidence level before it can be promoted.
+- **User-supplied targets**: no built-in frequency band, gain, noise, matching, stability, linearity, process, tool path, or PDK.
+- **Exploration tree as architecture**: the tree is the agent's working memory, not a final report appendix.
+- **Evidence before promotion**: a candidate must meet the configured evidence level before promotion.
 - **No silent relaxation**: hard targets cannot be changed without user approval.
-- **Smallest valid harness first**: use the cheapest test that can answer the current question.
-- **Layout grows incrementally**: visual review and database connectivity checks are first-class gates.
+- **Smallest valid harness first**: use the cheapest reliable experiment that answers the current question.
+- **Physics-aware checks**: textbook-derived RF checks are applied before trusting optimizer or EM output.
+- **Layout grows incrementally**: screenshots and database connectivity checks are first-class gates.
 - **Signoff is explicit**: DRC/LVS-clean claims require official decks and reports.
-- **Public package stays clean**: no proprietary PDK data, private layouts, local paths, tokens, or solver dumps.
-
-## First-Run Workflow
-
-1. Ask the user for the design contract.
-2. Write:
-   - `config/project.yaml`
-   - `config/metrics.yaml`
-   - `config/artifact_policy.yaml`
-   - `goal.md`
-   - `docs/exploration_tree.md`
-3. Initialize or connect a GitHub repository if requested.
-4. Create the first baseline candidate.
-5. Run the smallest valid harness and record evidence.
+- **Public package stays clean**: no proprietary PDK data, private layouts, local paths, tokens, solver dumps, or copyrighted textbook bodies.
 
 ## Repository Layout
 
@@ -51,96 +33,84 @@ The project is built from long-form EDA workflow lessons: exploration-tree gover
 skills/rf-eda-lna-agent/
   SKILL.md
   references/
-    user-intake-and-bootstrap.md
-    configuration-schema.md
     agent-architecture.md
+    historical-workflow-distilled-lessons.md
     exploration-tree-management.md
-    netlist-exploration-playbook.md
-    schematic-generation-playbook.md
-    harness-contracts.md
-    optimizer-policy.md
-    em-cosim-optimizer-playbook.md
-    em-cosim-policy.md
-    layout-exploration-playbook.md
-    layout-growth-policy.md
-    signoff-readiness-policy.md
-    failure-catalog.md
-    do-not-repeat-patterns.md
-    history-mining-and-remote-audit.md
     deep-harness-playbook.md
-    template-script-library.md
-    eda-adapter-patterns.md
-    rf-design-lessons.md
-    blocker-and-failure-playbook.md
-    export-policy.md
+    optimizer-policy.md
+    em-cosim-policy.md
+    layout-growth-policy.md
+    failure-catalog.md
+    rf-textbook-distilled-knowledge.md
+    rf-theory-source-map.md
+    rf-formula-and-sanity-gates.md
+    rf-passive-and-layout-checklists.md
+    rf-large-signal-and-nonlinear-checklists.md
+    rf-ads-cad-workflow-map.md
   scripts/
     init_project.py
     inventory_project.py
     metrics_gate.py
     touchstone_audit.py
-    exploration_tree_append.py
-    status_append.py
+    evidence_gate.py
     artifact_guard.py
     signoff_readiness.py
-    process_guard.py
     script_family_inventory.py
     history_remote_audit.py
-    failure_catalog_append.py
-    harness_scaffold.py
-    evidence_gate.py
-    materialize_template.py
+    public_safety_scan.py
+    book_knowledge_inventory.py
+    book_chapter_cards.py
+    book_lesson_append.py
   templates/
     harnesses/
       schematic_generation_template.py
-      layout_growth_template.py
+      optimizer_invocation_template.py
       em_extraction_template.py
       cosim_embedding_template.py
-      optimizer_invocation_template.py
+      layout_growth_template.py
     examples/
-      *.example.json
 examples/synthetic_project/
-  config/
-  docs/
-  manifests/
-  results/
+tests/
 ```
 
-## Bundled Scripts
+## First-Run Workflow
 
-| Script | Purpose |
-|---|---|
-| `init_project.py` | Create a configurable RF/EDA project scaffold from user-supplied inputs. |
-| `inventory_project.py` | Index candidates, docs, scripts, reports, and artifacts. |
-| `metrics_gate.py` | Evaluate measured metric JSON against user-supplied target JSON. |
-| `touchstone_audit.py` | Check Touchstone port count, frequency coverage, and DC handling. |
-| `exploration_tree_append.py` | Append a candidate record to Markdown and JSONL registry files. |
-| `status_append.py` | Append a compact candidate status entry. |
-| `artifact_guard.py` | Report repository size and largest artifacts without deleting anything. |
-| `signoff_readiness.py` | Check signoff collateral presence without claiming signoff-clean. |
-| `process_guard.py` | List possible EDA-related processes without killing them by default. |
-| `script_family_inventory.py` | Classify a large legacy script/doc tree into generic harness families. |
-| `history_remote_audit.py` | Compare local and snapshot/ref histories by path and content hash. |
-| `failure_catalog_append.py` | Append structured failure or blocker lessons to Markdown and JSONL. |
-| `harness_scaffold.py` | Create a parameterized harness skeleton for simulation, optimizer, EM/cosim, layout growth, signoff, or diagnostics. |
-| `evidence_gate.py` | Check whether a candidate has enough evidence and hard-gate status to be promoted. |
-| `materialize_template.py` | Copy a bundled schematic/layout/EM/cosim/optimizer template into a project. |
+1. Ask the user for the design contract: circuit/application, metrics, hard/stretch/report-only targets, EDA environment, PDK/signoff expectations, artifact budget, and GitHub policy.
+2. Generate `config/project.yaml`, `config/metrics.yaml`, `config/artifact_policy.yaml`, `goal.md`, and `docs/exploration_tree.md`.
+3. Create a baseline candidate and choose the smallest valid harness.
+4. Run the harness, extract metric JSON, apply evidence gates, and update the exploration tree.
+5. Preserve heavy outputs as manifests unless the project policy explicitly allows storing them.
 
-## Encoded Workflow Lessons
+## Bundled Script Families
 
-The skill encodes these recurring RF/EDA project lessons:
+| Family | Main scripts/templates | Purpose |
+|---|---|---|
+| Project bootstrap | `init_project.py` | Create generic RF/EDA project files from user input. |
+| Exploration tree | `exploration_tree_append.py`, `status_append.py`, `evidence_gate.py` | Record candidate state and prevent premature promotion. |
+| Inventory/history | `inventory_project.py`, `script_family_inventory.py`, `history_remote_audit.py` | Mine local and remote histories without copying private data. |
+| Optimizer | `optimizer_invocation_template.py`, `metrics_gate.py` | Run bounded optimizers with hard gates and independent verification. |
+| EM/cosim | `touchstone_audit.py`, `em_extraction_template.py`, `cosim_embedding_template.py` | Check SnP files, EM partitions, and embedding evidence. |
+| Layout growth | `layout_growth_template.py` | Grow RF layout block by block with screenshots and connectivity checks. |
+| Signoff readiness | `signoff_readiness.py` | Distinguish ready vs clean and report missing official collateral. |
+| Artifact/process guard | `artifact_guard.py`, `process_guard.py`, `public_safety_scan.py` | Control disk usage, avoid killing unrelated EDA jobs, and check public-release boundaries. |
+| Textbook knowledge | `book_knowledge_inventory.py`, `book_chapter_cards.py`, `book_lesson_append.py` | Convert local RF textbook reading into sanitized agent knowledge. |
 
-- local worktrees are not always the full history; remote branches and archives must be audited before writing a project narrative;
-- optimizer rows are evidence, not authority, until hard gates are independently verified;
-- analytic or ideal schematic primitives can be optimistic relative to true physical EM;
-- SnP black-box replacement is unsafe on paths that carry DC, noise reference, or high-impedance coupled behavior unless a control harness proves equivalence;
-- pin-level net equivalence is not enough for layout; conductive geometry and screenshots are separate gates;
-- passive full-chip EM is not the same as active/noise signoff;
-- missing official DRC/LVS decks are external blockers, not something the agent can silently work around;
-- heavy solver output belongs in manifests or external storage, not normal Git history.
+## RF Knowledge Layer
+
+The skill includes original, sanitized summaries distilled from RF/microwave textbook reading. These references convert theory into agent checks:
+
+- cascade noise and effective gain budgeting;
+- matching, Smith-chart, S-parameter, ABCD, and reference-plane sanity;
+- stability and wideband verification;
+- physical passive feasibility: inductors, capacitors, resistors, vias, airbridges, transformers, bias and decoupling networks;
+- nonlinear and large-signal checks: compression, intermodulation, harmonic balance;
+- EDA/CAD discipline: native optimizer setup, EM/circuit partitioning, GUI evidence, signoff readiness.
+
+The repository does not include textbook PDFs or copied textbook text.
 
 ## Example Commands
 
-Create a project scaffold with placeholder fields:
+Create a project scaffold:
 
 ```bash
 python skills/rf-eda-lna-agent/scripts/init_project.py \
@@ -149,16 +119,7 @@ python skills/rf-eda-lna-agent/scripts/init_project.py \
   --allow-tbd
 ```
 
-Index the synthetic example:
-
-```bash
-python skills/rf-eda-lna-agent/scripts/inventory_project.py \
-  --root examples/synthetic_project \
-  --out /tmp/rf-eda-inventory \
-  --candidate-regex '(?P<id>C\d{3})'
-```
-
-Evaluate a metrics file:
+Evaluate metrics:
 
 ```bash
 python skills/rf-eda-lna-agent/scripts/metrics_gate.py \
@@ -172,16 +133,6 @@ Audit a Touchstone file:
 python skills/rf-eda-lna-agent/scripts/touchstone_audit.py example.sNp --expect-ports N
 ```
 
-Check signoff readiness:
-
-```bash
-python skills/rf-eda-lna-agent/scripts/signoff_readiness.py \
-  --require-drc \
-  --require-lvs \
-  --drc-deck /path/to/drc.rules \
-  --lvs-deck /path/to/lvs.rules
-```
-
 Classify a legacy project into harness families:
 
 ```bash
@@ -190,43 +141,27 @@ python skills/rf-eda-lna-agent/scripts/script_family_inventory.py \
   --out /tmp/rf-eda-script-families
 ```
 
-Compare a local project with an archived branch snapshot:
+Inventory local textbook sources without copying content:
 
 ```bash
-python skills/rf-eda-lna-agent/scripts/history_remote_audit.py \
-  --root /path/to/project \
-  --snapshot old-main=/path/to/snapshot \
-  --out /tmp/rf-eda-history-audit
+python skills/rf-eda-lna-agent/scripts/book_knowledge_inventory.py \
+  --books-dir /path/to/books \
+  --out /tmp/rf-eda-book-inventory
 ```
 
-Create a new harness skeleton:
+Scan a public package before publishing:
 
 ```bash
-python skills/rf-eda-lna-agent/scripts/harness_scaffold.py \
-  --family optimizer \
-  --name c001_optimizer \
-  --out /tmp/rf-eda-harnesses
-```
-
-Copy a concrete template script into a project:
-
-```bash
-python skills/rf-eda-lna-agent/scripts/materialize_template.py \
-  --template schematic \
-  --name c001_schematic_builder \
-  --out-dir /path/to/project/scripts
+python skills/rf-eda-lna-agent/scripts/public_safety_scan.py --root .
 ```
 
 ## Validation
 
-Run:
-
 ```bash
 python -m compileall skills/rf-eda-lna-agent/scripts
 python -m unittest discover -s tests -v
+python skills/rf-eda-lna-agent/scripts/public_safety_scan.py --root .
 ```
-
-The GitHub Actions workflow runs the same validation on push and pull request.
 
 ## What This Project Does Not Do
 
@@ -235,6 +170,7 @@ The GitHub Actions workflow runs the same validation on push and pull request.
 - It does not certify a circuit for fabrication.
 - It does not include private circuit/layout data.
 - It does not choose RF targets for the user.
+- It does not upload textbook PDFs or copied textbook bodies.
 - It does not make a poor optimizer result valid by rewriting the goal.
 
 ## License
@@ -247,205 +183,56 @@ MIT
 
 [English](#rf-eda-lna-agent) | 中文
 
-RF EDA LNA Agent 是一个可配置的 Codex skill/plugin，用于把 RF/LNA 电路设计流程组织成可审计、可维护、可复现的工程工作流。它帮助 agent 采集用户指标、生成目标文件、维护探索树、运行通用 harness、审查证据，并输出签核准备状态。
+RF EDA LNA Agent 是一个面向 RF/LNA EDA 流程的 Codex skill/plugin。它的目标不是替代电路设计者做黑箱优化，而是把用户给定的设计指标、EDA 环境、PDK 约束、探索树、仿真 harness、EM/版图证据和签核 readiness 组织成可复现的工程流程。
 
-这个项目是流程基础设施，不包含 PDK、foundry rule deck、私有电路数据库、私有版图、私有仿真数据，也不承诺自动流片。
+本仓库是流程基础设施，不包含 PDK、foundry 规则 deck、私有电路数据库、私有版图、私有仿真数据、教材 PDF，也不承诺自动完成可流片签核。
 
-这个项目吸收的是长周期 EDA 自动化项目中的通用经验：探索树治理、受控 optimizer、EM/cosim 嵌回控制、GUI 审查的版图逐块生长、artifact 预算、以及真实 blocker 报告。公开包只保留通用方法，不发布私有电路数据。
+## 能解决什么问题
 
-## 它解决什么问题
-
-长周期 RF/EDA 设计经常会遇到这些问题：
-
-- optimizer 为了一个指标牺牲另一个硬指标；
-- 粗频点优化结果在细扫时失效；
-- schematic 模型和真实 EM 几何不一致；
-- S 参数黑盒嵌回破坏 DC 或噪声参考；
-- pin 名称看似正确，但真实金属没有连通；
-- 被动全片 EM 被误当成有源/噪声签核；
-- DRC/LVS deck 不存在却被误报为 clean；
-- 大量临时仿真文件把仓库撑爆。
-
-这个 agent 的目标不是替代 RF 工程判断，而是把这些风险变成明确的门禁、harness 和记录。
+- 先向用户采集设计契约，而不是内置固定频段或固定指标。
+- 自动建立 `goal.md`、配置文件、探索树记录和 artifact manifest。
+- 让每个候选都记录假设、父节点、变量、证据等级、指标、判定和 do-not-repeat。
+- 提供原理图生成、优化器、Touchstone 审查、EM/cosim、版图逐块生长、GUI 截图、大信号验证、签核 readiness 等模板。
+- 将 RF/微波教材知识沉淀为可执行检查：级联噪声预算、匹配与参考面、稳定性、物理无源可实现性、版图连通性、大信号验证。
+- 默认不把重型 EDA 产物放入 Git。
 
 ## 核心原则
 
-- **指标由用户给出**：不内置任何频段、增益、噪声、匹配、稳定性或线性度目标。
-- **证据先于 promotion**：候选必须达到配置要求的 evidence level 才能升级。
-- **不静默放宽目标**：hard target 只能由用户明确修改。
-- **先跑最小可信 harness**：用最小成本回答当前问题。
-- **版图逐块生长**：截图审查和数据库连通性检查都是硬门。
+- **指标由用户给出**：不内置频段、增益、噪声、匹配、稳定性、线性度、工艺、工具路径或 PDK。
+- **探索树是 agent 架构的一部分**：它是工作记忆和治理层，不是事后日志。
+- **证据先于提升**：候选必须达到配置要求的证据等级才能 promotion。
+- **不静默放宽硬门**：hard target 只能由用户明确修改。
+- **先用最小可信 harness**：用最低成本回答当前问题。
+- **理论检查前置**：优化器或 EM 输出必须经过 RF sanity gates。
+- **版图逐块生长**：截图和数据库连通性检查是硬门。
 - **签核必须真实**：DRC/LVS clean 必须有官方 deck 和真实报告。
-- **开源包保持干净**：不放 PDK、私有版图、本机路径、token 或重型 solver 输出。
+- **开源包保持干净**：不包含专有 PDK、私有版图、本地路径、token、solver dump 或教材正文。
 
-## 首次使用流程
+## 知识来源如何沉淀
 
-1. 向用户采集设计合同。
-2. 生成：
-   - `config/project.yaml`
-   - `config/metrics.yaml`
-   - `config/artifact_policy.yaml`
-   - `goal.md`
-   - `docs/exploration_tree.md`
-3. 按需创建或连接 GitHub 仓库。
-4. 建立第一个 baseline candidate。
-5. 运行最小可信 harness，并记录证据。
+本项目把两类经验转化为通用能力：
 
-## 目录结构
+1. 长期 RF/EDA 自动化项目中的流程经验：探索树、harness、optimizer、EM/cosim、版图 GUI、artifact 控制和 blocker 报告。
+2. RF/微波教材中的理论知识：传输线、S 参数、ABCD、匹配、噪声、稳定性、无源器件、via/airbridge、非线性和大信号。
 
-```text
-skills/rf-eda-lna-agent/
-  SKILL.md
-  references/
-    user-intake-and-bootstrap.md
-    configuration-schema.md
-    agent-architecture.md
-    exploration-tree-management.md
-    netlist-exploration-playbook.md
-    schematic-generation-playbook.md
-    harness-contracts.md
-    optimizer-policy.md
-    em-cosim-optimizer-playbook.md
-    em-cosim-policy.md
-    layout-exploration-playbook.md
-    layout-growth-policy.md
-    signoff-readiness-policy.md
-    failure-catalog.md
-    do-not-repeat-patterns.md
-    history-mining-and-remote-audit.md
-    deep-harness-playbook.md
-    template-script-library.md
-    eda-adapter-patterns.md
-    rf-design-lessons.md
-    blocker-and-failure-playbook.md
-    export-policy.md
-  scripts/
-    init_project.py
-    inventory_project.py
-    metrics_gate.py
-    touchstone_audit.py
-    exploration_tree_append.py
-    status_append.py
-    artifact_guard.py
-    signoff_readiness.py
-    process_guard.py
-    script_family_inventory.py
-    history_remote_audit.py
-    failure_catalog_append.py
-    harness_scaffold.py
-    evidence_gate.py
-    materialize_template.py
-  templates/
-    harnesses/
-      schematic_generation_template.py
-      layout_growth_template.py
-      em_extraction_template.py
-      cosim_embedding_template.py
-      optimizer_invocation_template.py
-    examples/
-      *.example.json
-examples/synthetic_project/
-  config/
-  docs/
-  manifests/
-  results/
-```
+这些内容只以原创摘要、检查清单、接口约定和失败模式进入仓库，不发布私有数据或教材正文。
 
-## 脚本说明
+## 使用与验证
 
-| 脚本 | 作用 |
-|---|---|
-| `init_project.py` | 根据用户输入创建通用 RF/EDA 项目骨架。 |
-| `inventory_project.py` | 索引 candidate、文档、脚本、报告和 artifact。 |
-| `metrics_gate.py` | 用用户目标 JSON 判定仿真指标 JSON 是否过门。 |
-| `touchstone_audit.py` | 检查 Touchstone 文件的端口数、频率覆盖和 DC 处理。 |
-| `exploration_tree_append.py` | 向 Markdown 和 JSONL 探索树追加候选记录。 |
-| `status_append.py` | 追加简洁状态记录。 |
-| `artifact_guard.py` | 报告仓库大小和最大文件，不默认删除。 |
-| `signoff_readiness.py` | 检查签核 collateral 是否存在，但不声称 clean。 |
-| `process_guard.py` | 列出可能的 EDA 进程，默认不杀进程。 |
-| `script_family_inventory.py` | 把大型历史脚本/文档树归类为通用 harness 家族。 |
-| `history_remote_audit.py` | 对比本地项目与历史快照/远端快照的路径和内容哈希。 |
-| `failure_catalog_append.py` | 结构化追加 failure/blocker 经验到 Markdown 和 JSONL。 |
-| `harness_scaffold.py` | 生成 simulation、optimizer、EM/cosim、layout growth、signoff 或 diagnostic harness 骨架。 |
-| `evidence_gate.py` | 检查候选证据等级、hard-gate 状态和红旗是否允许 promotion。 |
-| `materialize_template.py` | 把内置的原理图、版图、EM、联仿或 optimizer 模板复制到项目中。 |
-
-## 已固化的流程经验
-
-- 本地 worktree 不一定包含完整历史，写总结前要审计远端分支和历史快照。
-- optimizer 输出只是证据，必须经过独立 hard-gate 验证才能 promotion。
-- 解析/理想 schematic primitive 往往比真实物理 EM 乐观。
-- 带 DC、噪声参考、高阻耦合语义的路径不能盲目用 SnP 黑盒替换。
-- pin 级 net 等价不等于真实金属连通，版图必须检查 conductive geometry 和截图。
-- 被动全片 EM 不等于有源/噪声签核。
-- 缺官方 DRC/LVS deck 是 external blocker，不能伪造 clean。
-- 重型 solver 输出默认不进 Git，只保留 manifest 和轻量证据。
-
-## 使用示例
-
-创建带占位字段的项目骨架：
-
-```bash
-python skills/rf-eda-lna-agent/scripts/init_project.py \
-  --root /path/to/project \
-  --project-name my-rf-project \
-  --allow-tbd
-```
-
-索引 synthetic 示例项目：
-
-```bash
-python skills/rf-eda-lna-agent/scripts/inventory_project.py \
-  --root examples/synthetic_project \
-  --out /tmp/rf-eda-inventory \
-  --candidate-regex '(?P<id>C\d{3})'
-```
-
-评估指标：
-
-```bash
-python skills/rf-eda-lna-agent/scripts/metrics_gate.py \
-  --metrics-json measured.json \
-  --targets-json targets.json
-```
-
-审查 Touchstone 文件：
-
-```bash
-python skills/rf-eda-lna-agent/scripts/touchstone_audit.py example.sNp --expect-ports N
-```
-
-检查签核准备状态：
-
-```bash
-python skills/rf-eda-lna-agent/scripts/signoff_readiness.py \
-  --require-drc \
-  --require-lvs \
-  --drc-deck /path/to/drc.rules \
-  --lvs-deck /path/to/lvs.rules
-```
-
-## 验证
-
-运行：
+创建项目、评估指标、审查 Touchstone、分类历史脚本、整理教材知识和发布前安全扫描的命令与英文部分相同。发布前至少运行：
 
 ```bash
 python -m compileall skills/rf-eda-lna-agent/scripts
 python -m unittest discover -s tests -v
+python skills/rf-eda-lna-agent/scripts/public_safety_scan.py --root .
 ```
 
-GitHub Actions 会在 push 和 pull request 时运行同样的验证。
-
-## 这个项目不做什么
+## 边界
 
 - 不提供 foundry collateral。
 - 不自行完成官方 DRC/LVS。
 - 不认证电路可流片。
 - 不包含私有电路或版图数据。
 - 不替用户选择 RF 指标。
+- 不上传教材 PDF 或复制教材正文。
 - 不通过改写目标来美化失败结果。
-
-## License
-
-MIT

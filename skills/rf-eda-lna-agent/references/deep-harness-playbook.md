@@ -19,6 +19,7 @@ responses.
 | GUI control | Open exactly the target schematic/layout and capture evidence | GUI script, window/cell target | screenshot set, window count, lock status |
 | Signoff readiness | Check whether final physical verification can be claimed | deck paths, reports, GDS, LVS mapping | ready/blocked status, missing collateral |
 | Artifact guard | Keep Git and solver directories under budget | root, size budget, allowlist | largest files, manifest, cleanup proposal |
+| Textbook knowledge | Convert local RF books into sanitized agent checks | books directory, extraction limit, source labels | inventory JSON, extraction blockers, original lesson records |
 
 ## Candidate Record Contract
 
@@ -58,12 +59,28 @@ Promotion requires the evidence level configured for the current gate.
 
 - One harness answers one question.
 - The cheapest harness is acceptable only if it matches the decision being made.
+- RF textbook-derived sanity gates should be selected before expensive tool runs.
 - A control experiment is mandatory before trusting a new embedding method.
 - Logs and metric JSON are evidence; screenshots are evidence only for visual
   or layout questions.
 - Solver outputs stay outside Git unless the artifact policy explicitly allows
   them.
 - A failed harness must leave a blocker record, not a silent partial result.
+
+## Theory-To-Harness Translation
+
+Use textbook knowledge as operational gates, not as prose decoration:
+
+- transmission-line and network theory -> reference-plane, port-order, S/ABCD,
+  and frequency-coverage checks;
+- noise-parameter and cascade theory -> early-stage effective gain and
+  downstream burden checks;
+- passive-element theory -> physical feasibility, access-line, via, return-path,
+  and self-resonance checks;
+- nonlinear circuit theory -> HB, compression, intermodulation, and convergence
+  checks;
+- CAD workflow material -> dry-run, raw-log, extracted-metric, independent
+  verification, and artifact manifest contracts.
 
 ## Anti-Patterns
 

@@ -39,6 +39,7 @@ def main() -> int:
     evidence = str(candidate.get("evidence_level", "E0"))
     hard = candidate.get("hard_checks", {})
     red_flags = candidate.get("red_flags", [])
+    degeneracy = candidate.get("degeneracy_checks", {})
     reasons: list[str] = []
 
     if EVIDENCE_ORDER.get(evidence, -1) < EVIDENCE_ORDER.get(args.required_evidence, 999):
@@ -49,6 +50,9 @@ def main() -> int:
             reasons.append("hard checks failed or missing: " + ", ".join(sorted(failed)))
     if args.forbid_red_flags and red_flags:
         reasons.append("red flags present: " + ", ".join(map(str, red_flags)))
+    degenerate = [name for name, value in degeneracy.items() if value is not False]
+    if degenerate:
+        reasons.append("degenerate result checks failed: " + ", ".join(sorted(degenerate)))
 
     verdict = "promote" if not reasons else "provisional"
     result = {

@@ -10,6 +10,7 @@ Each optimizer run needs:
 - allowed variables and bounds;
 - quantization or physical implementation constraints when known;
 - hard metric constraints from `config/metrics.yaml`;
+- RF sanity gates selected from the active design claim;
 - objective terms for all important tradeoffs;
 - wall-time and iteration budgets;
 - independent verification plan.
@@ -20,6 +21,7 @@ Reject a candidate when:
 
 - it passes one metric by sacrificing another hard metric;
 - a configured metric is missing from the score;
+- a relevant RF sanity gate is absent from the plan;
 - a coarse-grid pass fails independent verification;
 - a stability-related metric barely clears the target through a narrow peak;
 - an ideal model result is not reproducible with the required physical evidence level.
@@ -49,12 +51,25 @@ Live EM inside every optimizer iteration is often too expensive. The preferred p
 
 Do not return to an ideal or analytic primitive to claim final margin once a true EM artifact has exposed different phase, loss, or coupling behavior.
 
+## Textbook-Derived Objective Discipline
+
+- Cascade noise and gain must be scored together when the design contains
+  multiple active stages.
+- Matching, transducer gain, and stability must remain active when the optimizer
+  changes source/load or interstage conditions.
+- Physical line length, access metal, via return, and passive geometry should be
+  variables or frozen EM artifacts; do not tune around them as invisible
+  constants.
+- Large-signal goals require separate nonlinear verification; small-signal
+  optimizer rows cannot claim compression or intercept performance.
+
 ## Degenerate Result Rejection
 
 Reject or demote a result when:
 
 - a hard metric was not active in the objective or configured gate;
 - the result improves one target by worsening an unconstrained hard gate;
+- a required RF sanity gate is omitted;
 - the pass depends on a narrow ripple, spike, or sampled-grid artifact;
 - layout variables were not synchronized back to real geometry;
 - the optimizer used a lower-fidelity model after higher-fidelity physical evidence showed a mismatch.

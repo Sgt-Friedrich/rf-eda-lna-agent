@@ -1,12 +1,15 @@
 # Agent Architecture
 
-The agent is a workflow executor and evidence manager, not a universal RF optimizer.
+The agent is a workflow executor, RF sanity-check runner, and exploration-tree
+manager, not a universal RF optimizer.
 
 The agent must behave like a disciplined RF design flow runner:
 
 - clarify the design contract before running tools;
 - build one bounded experiment at a time;
 - keep every candidate tied to evidence;
+- keep every candidate tied to an RF/system hypothesis;
+- use distilled history to avoid known bad harness patterns;
 - refuse promotion when the evidence level is too low;
 - preserve negative results as do-not-repeat rules;
 - keep local and GitHub histories synchronized at the text/manifest level;
@@ -17,12 +20,13 @@ The agent must behave like a disciplined RF design flow runner:
 ```text
 S0 orient
 S1 classify task
-S2 select harness
-S3 run bounded experiment
-S4 verify evidence
-S5 update exploration tree
-S6 promote / retire / block
-S7 cleanup resources
+S2 apply RF sanity checks
+S3 select harness
+S4 run bounded experiment
+S5 verify evidence
+S6 update exploration tree
+S7 promote / retire / block
+S8 cleanup resources
 ```
 
 ## Operating Loop
@@ -31,12 +35,14 @@ For every non-trivial design action:
 
 1. Read the active `goal.md` and metric config.
 2. Identify the current gate and required evidence level.
-3. Select the smallest harness that can answer that gate.
-4. Run the harness with a time/artifact budget.
-5. Verify results independently of the producing optimizer or GUI action.
-6. Append candidate status and artifacts to the exploration tree.
-7. If a hard gate fails, record the failure mode before retuning.
-8. If a blocker is external, stop with the smallest unlock action.
+3. Map the claim to RF sanity gates: cascade/noise budget, matching, stability,
+   passive feasibility, EM boundary, layout connectivity, or large-signal.
+4. Select the smallest harness that can answer that gate.
+5. Run the harness with a time/artifact budget.
+6. Verify results independently of the producing optimizer or GUI action.
+7. Append candidate status and artifacts to the exploration tree.
+8. If a hard gate fails, record the failure mode before retuning.
+9. If a blocker is external, stop with the smallest unlock action.
 
 Do not skip directly from schematic metrics to layout/signoff claims.
 
@@ -63,6 +69,7 @@ id: CANDIDATE_ID
 parent: PARENT_ID
 branch: branch_name
 hypothesis: short claim
+rf_sanity_gates: []
 seed: seed ID or artifact
 changed_variables: []
 forbidden_changes: []
@@ -77,6 +84,49 @@ next_action: short action
 The record is incomplete if it lacks the command/script, evidence path, or
 decision reason. Incomplete records may be useful notes, but they cannot drive
 promotion.
+
+## Exploration Tree As Architecture
+
+The exploration tree is not a diary. It is the agent's working memory and
+governance layer:
+
+- it prevents repeated dead-end neighborhoods;
+- it separates mechanism branches from candidate branches;
+- it records which RF assumptions were tested;
+- it preserves why a result was promoted, retired, or blocked;
+- it lets future runs compare local work, remote branches, and archived
+  snapshots before claiming novelty.
+
+Every non-trivial tool action should either create, update, retire, or block a
+candidate node. A candidate cannot be promoted from an untracked side result.
+
+## History-Informed Harness Selection
+
+Large RF/EDA histories tend to produce more layout, EM/cosim, process/artifact,
+and diagnostic scripts than final candidate scripts. Treat that as evidence
+that the agent must:
+
+- maintain artifact budgets from the beginning;
+- validate every new embedding method with a control;
+- keep GUI review available for physical layout questions;
+- use diagnostic fixtures before broad retuning;
+- preserve negative results and do-not-repeat rules;
+- distinguish readiness, provisional evidence, blocker, and signoff-clean.
+
+## Theory-Informed Gates
+
+Before selecting a harness, apply the relevant RF textbook-derived checks:
+
+- cascade/noise budget for staged designs;
+- matching and reference-plane sanity for two-port and embedded networks;
+- wide-range stability for active circuits;
+- passive feasibility for inductors, capacitors, resistors, vias, returns, and
+  bias networks;
+- nonlinear verification for compression and intermodulation claims;
+- EDA/CAD workflow checks for optimizer, EM/cosim, GUI, and signoff claims.
+
+The theory gate does not set numeric targets. It decides which configured
+targets and evidence levels must be active.
 
 ## Branch Classes
 

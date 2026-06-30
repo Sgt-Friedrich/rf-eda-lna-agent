@@ -40,6 +40,11 @@ def validate_optimizer_plan(plan: dict) -> list[str]:
                 errors.append(f"hard_targets[{index}] missing {key}")
     if not plan.get("verification", {}).get("independent_rerun"):
         errors.append("verification.independent_rerun must be true")
+    for index, gate in enumerate(plan.get("rf_sanity_gates", [])):
+        if "name" not in gate:
+            errors.append(f"rf_sanity_gates[{index}] missing name")
+        if gate.get("required") is True and "source" not in gate:
+            errors.append(f"rf_sanity_gates[{index}] required gate needs source")
     return errors
 
 
@@ -81,6 +86,7 @@ def main() -> int:
         "runner": plan.get("runner", {}),
         "variable_count": len(plan.get("variables", [])),
         "hard_target_count": len(plan.get("hard_targets", [])),
+        "rf_sanity_gate_count": len(plan.get("rf_sanity_gates", [])),
         "validation_errors": errors,
     }
     write_json(out / "optimizer_run_plan.json", {**plan, "validation_errors": errors})
@@ -96,6 +102,7 @@ def main() -> int:
             "optimizer completes",
             "outputs are quantized",
             "independent verification passes",
+            "RF sanity gates are checked",
             "exploration tree is updated",
         ]
     else:

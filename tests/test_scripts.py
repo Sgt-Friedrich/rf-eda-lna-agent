@@ -121,6 +121,7 @@ class ScriptTests(unittest.TestCase):
             (root / "docs").mkdir()
             (root / "scripts" / "candidate_optimizer_sweep.py").write_text("run optimizer sweep", encoding="utf-8")
             (root / "scripts" / "layout_gui_screenshot.py").write_text("capture layout screenshot", encoding="utf-8")
+            (root / "scripts" / "schematic_netlist_builder.py").write_text("draw schematic wire instance netlist", encoding="utf-8")
             (root / "docs" / "em_cosim_notes.md").write_text("Momentum SnP embedding notes", encoding="utf-8")
             out = Path(td) / "families"
             proc = run_script("script_family_inventory.py", "--root", root, "--out", out)
@@ -129,6 +130,7 @@ class ScriptTests(unittest.TestCase):
             self.assertGreaterEqual(data["counts"].get("optimizer_or_sweep", 0), 1)
             self.assertGreaterEqual(data["counts"].get("layout_gui", 0), 1)
             self.assertGreaterEqual(data["counts"].get("em_cosim", 0), 1)
+            self.assertGreaterEqual(data["counts"].get("netlist_schematic", 0), 1)
 
     def test_history_remote_audit_snapshot(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -251,6 +253,31 @@ class ScriptTests(unittest.TestCase):
             self.assertNotEqual(blocked.returncode, 0)
             self.assertIn('"verdict": "provisional"', blocked.stdout)
 
+            candidate.write_text(
+                json.dumps(
+                    {
+                        "id": "C001",
+                        "evidence_level": "E5",
+                        "hard_checks": {"gain": True, "match": True},
+                        "red_flags": [],
+                        "degeneracy_checks": {"single_metric_sacrifice": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            degenerate = run_script(
+                "evidence_gate.py",
+                "--candidate-json",
+                candidate,
+                "--required-evidence",
+                "E4",
+                "--require-hard-pass",
+                "--forbid-red-flags",
+                check=False,
+            )
+            self.assertNotEqual(degenerate.returncode, 0)
+            self.assertIn("degenerate result checks failed", degenerate.stdout)
+
     def test_materialize_and_template_dry_runs(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -338,6 +365,90 @@ class ScriptTests(unittest.TestCase):
                 self.assertEqual(proc2.returncode, 0, f"{script}\nSTDOUT:\n{proc2.stdout}\nSTDERR:\n{proc2.stderr}")
                 self.assertIn('"verdict": "dry_run_pass"', proc2.stdout)
                 self.assertTrue((out / "evidence.json").exists())
+
+    def test_book_knowledge_helpers(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            books = root / "books"
+            books.mkdir()
+            out = root / "book_inventory"
+            inventory = run_script("book_knowledge_inventory.py", "--books-dir", books, "--out", out)
+            self.assertIn('"book_count": 0', inventory.stdout)
+            data = json.loads((out / "book_knowledge_inventory.json").read_text(encoding="utf-8"))
+            self.assertEqual(data["book_count"], 0)
+
+            inv = root / "synthetic_book_inventory.json"
+            inv.write_text(
+                json.dumps(
+                    {
+                        "records": [
+                            {
+                                "file_name": "Synthetic_RF_Text.pdf",
+                                "status": "extracted",
+                                "chapter_or_toc_signals": [
+                                    "2 TRANSMISSION LINE THEORY",
+                                    "5 IMPEDANCE MATCHING",
+                                    "7 NOISE IN LINEAR TWO-PORTS",
+                                    "8 SMALL- AND LARGE-SIGNAL AMPLIFIER DESIGN",
+                                ],
+                                "keyword_signals": ["via holes and capacitor access"],
+                            },
+                            {
+                                "file_name": "Broken_ADS_Text.pdf",
+                                "status": "needs_repair_or_ocr",
+                                "toc_error": "synthetic failure",
+                            },
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            cards_out = root / "cards"
+            cards = run_script("book_chapter_cards.py", "--inventory", inv, "--out", cards_out)
+            self.assertIn('"verdict": "ok"', cards.stdout)
+            cards_data = json.loads((cards_out / "book_knowledge_cards.json").read_text(encoding="utf-8"))
+            topics = {card["topic"] for card in cards_data["cards"]}
+            self.assertIn("transmission_lines_and_reference_planes", topics)
+            self.assertIn("noise_parameters_and_cascade_budget", topics)
+            self.assertIn("extraction_blockers", topics)
+
+            markdown = root / "refs" / "rf_lessons.md"
+            registry = root / "refs" / "rf_lessons.jsonl"
+            lesson = run_script(
+                "book_lesson_append.py",
+                "--markdown",
+                markdown,
+                "--registry",
+                registry,
+                "--source",
+                "synthetic source",
+                "--topic",
+                "matching sanity",
+                "--agent-use",
+                "verify reference planes before promotion",
+                "--sanity-gates",
+                "matching,reference_plane",
+                "--harness-links",
+                "em_cosim,optimizer",
+                "--notes",
+                "original summary only",
+            )
+            self.assertIn('"verdict": "ok"', lesson.stdout)
+            self.assertIn("matching sanity", markdown.read_text(encoding="utf-8"))
+            record = json.loads(registry.read_text(encoding="utf-8").splitlines()[0])
+            self.assertEqual(record["copyright_boundary"], "original summary; no copied textbook body text")
+
+    def test_public_safety_scan(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "README.md").write_text("generic public text\n", encoding="utf-8")
+            clean = run_script("public_safety_scan.py", "--root", root)
+            self.assertIn('"verdict": "pass"', clean.stdout)
+            bad_path = "C:" + "/" + "Us" + "ers/example/file"
+            (root / "bad.md").write_text(f"private path {bad_path}\n", encoding="utf-8")
+            bad = run_script("public_safety_scan.py", "--root", root, check=False)
+            self.assertNotEqual(bad.returncode, 0)
+            self.assertIn("windows_absolute_path", bad.stdout)
 
 
 if __name__ == "__main__":

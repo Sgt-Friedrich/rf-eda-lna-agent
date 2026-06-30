@@ -15,6 +15,15 @@ an evidence bundle before project-specific EDA hooks are filled in.
 | `cosim_embedding_template.py` | Embed audited EM artifacts into a circuit harness with replace/audit/hybrid mode checks | `embedding_plan.example.json` |
 | `optimizer_invocation_template.py` | Invoke a native or scripted optimizer with physical variables and hard targets | `optimizer_plan.example.json` |
 
+## Knowledge Scripts
+
+| Script | Purpose | Boundary |
+|---|---|---|
+| `book_knowledge_inventory.py` | Inventory local RF/microwave textbooks for metadata, chapter signals, and extraction blockers | does not copy textbook body text |
+| `book_chapter_cards.py` | Convert sanitized inventory into topic-level RF agent knowledge cards | derived from headings/signals only |
+| `book_lesson_append.py` | Append original textbook-derived engineering lessons to a project knowledge base | requires authored summaries, not pasted book content |
+| `public_safety_scan.py` | Scan public package content for local paths, private hints, fixed metrics, credentials, and heavy files | run before publishing |
+
 ## Materializing A Template
 
 Use:
@@ -29,6 +38,10 @@ python skills/rf-eda-lna-agent/scripts/materialize_template.py \
 Then edit only the project-specific hook and config paths. Keep metrics, EDA
 runtime paths, library names, and PDK names in project config, not in the public
 template.
+
+For textbook-derived knowledge, keep source PDFs outside Git. Store only
+inventory JSON, extraction status, source labels, and original engineering
+summaries.
 
 ## Required Customization
 

@@ -26,6 +26,18 @@
       "weight": "USER_SUPPLIED_WEIGHT"
     }
   ],
+  "rf_sanity_gates": [
+    {
+      "name": "cascade_noise_budget",
+      "source": "rf-textbook-distilled-knowledge",
+      "required": true
+    },
+    {
+      "name": "matching_reference_plane_consistency",
+      "source": "rf-textbook-distilled-knowledge",
+      "required": true
+    }
+  ],
   "verification": {
     "independent_rerun": true,
     "fine_grid_or_honest_range": "USER_SUPPLIED"

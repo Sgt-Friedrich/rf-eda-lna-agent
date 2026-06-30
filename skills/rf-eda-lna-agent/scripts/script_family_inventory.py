@@ -12,6 +12,17 @@ from typing import Iterable
 
 
 FAMILY_PATTERNS: dict[str, list[str]] = {
+    "netlist_schematic": [
+        r"netlist",
+        r"schematic",
+        r"cell",
+        r"wire",
+        r"instance",
+        r"symbol",
+        r"build_.*workspace",
+        r"generate",
+        r"draw",
+    ],
     "optimizer_or_sweep": [
         r"optimi[sz]e",
         r"\bopt\b",
@@ -63,6 +74,15 @@ FAMILY_PATTERNS: dict[str, list[str]] = {
         r"ip1db",
         r"compression",
         r"large.?signal",
+    ],
+    "textbook_knowledge": [
+        r"book",
+        r"textbook",
+        r"theory",
+        r"formula",
+        r"sanity",
+        r"lesson",
+        r"knowledge",
     ],
     "signoff": [
         r"drc",
@@ -136,6 +156,13 @@ def write_markdown(out: Path, data: dict) -> None:
         for item in examples:
             lines.append(f"- `{item}`")
         lines.append("")
+    lines.append("## Migration Guidance")
+    lines.append("")
+    lines.append("- Preserve interfaces, evidence products, gates, and failure responses; do not copy private scripts verbatim.")
+    lines.append("- Convert repeated script families into parameterized harness templates.")
+    lines.append("- Record dead-end neighborhoods as do-not-repeat rules.")
+    lines.append("- Keep raw solver/layout artifacts out of public Git unless explicitly allowed.")
+    lines.append("")
     out.write_text("\n".join(lines), encoding="utf-8")
 
 
